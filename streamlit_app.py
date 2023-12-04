@@ -22,14 +22,13 @@ def create_dataframe():
 
 # Function to visualize with Matplotlib
 def visualize_with_matplotlib(df):
-    st.subheader("Visualization with Matplotlib")
+    st.subheader("Scatter Plot: Transaction Amount vs. Percentage Margin")
     fig, ax = plt.subplots()
-    ax.plot(df['transaction_id'], df['crypto_received'], label='Crypto Received')
-    ax.plot(df['transaction_id'], df['crypto_spent'], label='Crypto Spent')
-    ax.set_xlabel('Transaction ID')
-    ax.set_ylabel('Amount')
-    ax.legend()
+    ax.scatter(df['crypto_received'], df['pct_margin'])
+    ax.set_xlabel('Transaction Amount (Crypto Received)')
+    ax.set_ylabel('Percentage Margin')
     st.pyplot(fig)
+
 
 # Function to visualize with Plotly
 def visualize_with_plotly(df):
