@@ -8,17 +8,29 @@ db = firestore.Client.from_service_account_json("firestore-key.json")
 
 # Function to generate random data
 def generate_random_data():
+    transaction_id = st.session_state.current_transaction_id
+    st.session_state.current_transaction_id += 1
+    
+    crypto_received = random.uniform(30, 3000)
+    pct_margin = random.uniform(0, 5)
+    margin = (crypto_received * pct_margin) / 100
+    crypto_spent = crypto_received - margin
+
     return {
-        'transactions': random.randint(1, 100),
-        'crypto_received': random.uniform(0.1, 10.0),
-        'crypto_spent': random.uniform(0.1, 10.0),
-        'margin': random.uniform(0.1, 5.0),
-        'pct_margin': random.uniform(1.0, 10.0),
+        'transaction_id': transaction_id,
+        'crypto_received': crypto_received,
+        'crypto_spent': crypto_spent,
+        'margin': margin,
+        'pct_margin': pct_margin,
         'time': datetime.now(),
     }
 
 # Create a reference to the Firestore collection
 collection_ref = db.collection("your_collection_name")
+
+# Initialize session state to keep track of transaction_id
+if 'current_transaction_id' not in st.session_state:
+    st.session_state.current_transaction_id = 0
 
 # Get the number of random records to insert
 num_records = st.slider("Select the number of records to insert:", 1, 100, 10)
@@ -27,6 +39,10 @@ num_records = st.slider("Select the number of records to insert:", 1, 100, 10)
 for _ in range(num_records):
     data = generate_random_data()
     collection_ref.add(data)
+
+# Display a success message
+st.success(f'{num_records} random records inserted into Firestore.')
+
 
 # Display a success message
 st.success(f'{num_records} random records inserted into Firestore.')
