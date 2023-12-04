@@ -40,11 +40,16 @@ def visualize_with_plotly(df):
     st.plotly_chart(fig)
 
 # Streamlit App
+# Streamlit App
 def main():
     st.title("Crypto Transactions Visualization")
 
     # Retrieve data from Firestore and create a dataframe
     df = create_dataframe()
+
+    # Display the last 50 transactions as a table
+    st.subheader("Last 50 Transactions Table")
+    st.table(df.tail(50))
 
     # Visualize with Matplotlib
     visualize_with_matplotlib(df)
@@ -54,3 +59,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
