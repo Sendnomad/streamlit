@@ -3,24 +3,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 from google.cloud import firestore
+from datetime import datetime, timedelta
 
 # Authenticate to Firestore with the JSON account key.
 db = firestore.Client.from_service_account_json("firestore-key.json")
 
-# Function to retrieve data from Firestore
 def get_data():
     collection_ref = db.collection("your_collection_name")
     docs = collection_ref.stream()
     data = [doc.to_dict() for doc in docs]
     return data
 
-# Function to create a dataframe from the retrieved data
 def create_dataframe():
     data = get_data()
     df = pd.DataFrame(data)
     return df
 
-# Function to visualize with Matplotlib
 def visualize_with_matplotlib(df):
     st.subheader("Scatter Plot: Transaction Amount vs. Percentage Margin")
     fig, ax = plt.subplots()
@@ -29,17 +27,37 @@ def visualize_with_matplotlib(df):
     ax.set_ylabel('Percentage Margin')
     st.pyplot(fig)
 
-
-# Function to visualize with Plotly
 def visualize_with_plotly(df):
-    st.subheader("Visualization with Plotly")
-    fig = px.line(df, x='transaction_id', y=['crypto_received', 'crypto_spent'],
-                 labels={'value': 'Amount', 'variable': 'Type'},
-                 title='Crypto Transactions Over Time')
+    st.subheader("Scatter Plot: Transaction Amount vs. Percentage Margin")
+    fig = px.scatter(df, x='crypto_received', y='pct_margin',
+                     labels={'crypto_received': 'Transaction Amount (Crypto Received)', 'pct_margin': 'Percentage Margin'},
+                     title='Transaction Amount vs. Percentage Margin')
     st.plotly_chart(fig)
 
-# Streamlit App
-# Streamlit App
+def average_pct_margin_by_time_period(df, time_period):
+    now = datetime.now()
+
+    if time_period == 'Last 30 mins':
+        start_time = now - timedelta(minutes=30)
+    elif time_period == 'Last 1 hour':
+        start_time = now - timedelta(hours=1)
+    elif time_period == 'Last 10 hours':
+        start_time = now - timedelta(hours=10)
+    elif time_period == 'Last day':
+        start_time = now - timedelta(days=1)
+    elif time_period == 'Last week':
+        start_time = now - timedelta(weeks=1)
+    elif time_period == 'Last month':
+        start_time = now - timedelta(weeks=4)  # Approximating a month as 4 weeks
+    else:
+        st.error("Invalid time period selected.")
+        return None
+
+    filtered_df = df[(df['time'] >= start_time) & (df['time'] <= now)]
+    avg_pct_margin = filtered_df['pct_margin'].mean()
+
+    return avg_pct_margin
+
 def main():
     st.title("Crypto Transactions Visualization")
 
@@ -56,6 +74,13 @@ def main():
     # Visualize with Plotly
     visualize_with_plotly(df)
 
+    # Widget to select time period
+    time_period = st.selectbox("Select Time Period", ['Last 30 mins', 'Last 1 hour', 'Last 10 hours', 'Last day', 'Last week', 'Last month'])
+
+    # Calculate and display average pct_margin for the selected time period
+    avg_pct_margin = average_pct_margin_by_time_period(df, time_period)
+    if avg_pct_margin is not None:
+        st.subheader(f"Average Percentage Margin for {time_period}: {avg_pct_margin:.2f}%")
+
 if __name__ == "__main__":
     main()
-
