@@ -17,7 +17,12 @@ def get_data():
 def create_dataframe():
     data = get_data()
     df = pd.DataFrame(data)
+    
+    # Convert 'time' column to datetime type
+    df['time'] = pd.to_datetime(df['time'])
+    
     return df
+
 
 def visualize_with_matplotlib(df):
     st.subheader("Scatter Plot: Transaction Amount vs. Percentage Margin")
