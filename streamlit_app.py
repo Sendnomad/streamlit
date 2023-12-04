@@ -84,6 +84,9 @@ def main():
     # Visualize with Plotly
     visualize_with_plotly(df)
 
+    sum_margin_df = sum_margin_by_30_minutes(df)
+    st.subheader("Bar Plot: Sum of Margin for 30-minute Intervals")
+
     # Widget to select time period
     time_period = st.selectbox("Select Time Period", ['Last 30 mins', 'Last 1 hour', 'Last 10 hours', 'Last day', 'Last week', 'Last month'])
 
