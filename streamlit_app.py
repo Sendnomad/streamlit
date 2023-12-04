@@ -32,6 +32,11 @@ def visualize_with_matplotlib(df):
     ax.set_ylabel('Percentage Margin')
     st.pyplot(fig)
 
+def sum_margin_by_30_minutes(df):
+    df['time_rounded'] = df['time'].dt.floor('30min')
+    sum_margin_df = df.groupby('time_rounded')['margin'].sum().reset_index()
+    return sum_margin_df
+
 def visualize_with_plotly(df):
     st.subheader("Scatter Plot: Transaction Amount vs. Percentage Margin")
     fig = px.scatter(df, x='crypto_received', y='pct_margin',
