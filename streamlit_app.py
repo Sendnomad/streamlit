@@ -63,14 +63,14 @@ def average_pct_margin_by_time_period(df, time_period):
         st.error("Invalid time period selected.")
         return None
 
-    # Convert start_time to the same datetime type as 'time' column
+    # Ensure both 'time' and 'start_time' are of the same datetime type
+    df['time'] = pd.to_datetime(df['time'], utc=True)
     start_time = pd.to_datetime(start_time, utc=True)
 
     filtered_df = df[(df['time'] >= start_time) & (df['time'] <= now)]
     avg_pct_margin = filtered_df['pct_margin'].mean()
 
     return avg_pct_margin
-
 
 def main():
     st.title("Crypto Transactions Visualization")
