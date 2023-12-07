@@ -7,11 +7,12 @@ from datetime import datetime, timedelta
 import sqlite3
 import json
 from google.oauth2 import service_account
+from google.protobuf.timestamp_pb2 import Timestamp
 
 # Authenticate to Firestore with the JSON account key.
-key_dict = json.loads(st.secrets["text"])
+key_dict = json.loads(st.secrets["firestore"])
 creds = service_account.Credentials.from_service_account_info(key_dict)
-db = firestore.Client(credentials=creds, project="streamlit-reddit")
+db = firestore.Client(credentials=creds, project="streamlit")
 
 # SQLite database connection
 sqlite_conn = sqlite3.connect('firestore.db')
@@ -21,12 +22,7 @@ def create_table_if_not_exists():
     # Create the table if it doesn't exist
     sqlite_cursor.execute('''
         CREATE TABLE IF NOT EXISTS firestore (
-            time TEXT PRIMARY KEY,
-            crypto_received REAL,
-            crypto_spent REAL,
-            margin REAL,
-            pct_margin REAL,
-            transaction_id TEXT,
+            docID TEXT,
             actualAmount REAL,
             amount REAL,
             blockchainTransferId TEXT,
@@ -71,30 +67,31 @@ def firestore_to_python_type(value, data_type):
         elif data_type == 'number':
             return float(value)
         elif data_type == 'boolean':
-            return bool(value)
+            if value = true:
+                return 1
+            else :
+                return 0
         elif data_type == 'timestamp':
             return datetime.utcfromtimestamp(value.seconds + value.nanos / 1e9)
     return None  # Return None for empty values
 
 def get_data_from_firestore():
+    start_timestamp = Timestamp()
+    start_timestamp.FromDatetime(datetime(2023, 4, 1))
+    docs = collection_ref.where('time_created', '>=', start_timestamp).stream()
     collection_ref = db.collection("your_collection_name")
     docs = collection_ref.stream()
     data = [doc.to_dict() for doc in docs]
     return data
 
 def get_data_from_sqlite():
-    sqlite_cursor.execute("SELECT * FROM firestore_cache")
+    sqlite_cursor.execute("SELECT * FROM firestore")
     data = sqlite_cursor.fetchall()
     return data
 
 def update_sqlite_cache(data):
     try:
-        values = [(entry['time'],
-                   firestore_to_python_type(entry.get('crypto_received'), 'number'),
-                   firestore_to_python_type(entry.get('crypto_spent'), 'number'),
-                   firestore_to_python_type(entry.get('margin'), 'number'),
-                   firestore_to_python_type(entry.get('pct_margin'), 'number'),
-                   entry.get('transaction_id'),
+        values = [ entry.get('docID'),
                    firestore_to_python_type(entry.get('actualAmount'), 'number'),
                    firestore_to_python_type(entry.get('amount'), 'number'),
                    entry.get('blockchainTransferId'),
@@ -130,14 +127,13 @@ def update_sqlite_cache(data):
 
     sqlite_cursor.executemany('''
         INSERT OR IGNORE INTO firestore_cache 
-        (time, crypto_received, crypto_spent, margin, pct_margin, transaction_id, 
-         actualAmount, amount, blockchainTransferId, blockchainaddress, cashbackLosses,
+        (docID, actualAmount, amount, blockchainTransferId, blockchainaddress, cashbackLosses,
          cashedOut, completed, cryptocurrency, fromCurrency, hasCashRewards, mercuryoFiatAmount,
          mercuryoFromCurrency, nickname, orderNumber, p2pRateRealized, profit, profitActual,
          recipientAmount, recipientAmountDelivered, recipientCurrency, recipientPayoutOption,
          sendCountry, systemId, time_created, username, valueCryptoReceived, valueCryptoUsed,
          valueCryptoUsedActual)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', values)
     sqlite_conn.commit()
 
