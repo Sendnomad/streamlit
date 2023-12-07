@@ -22,7 +22,7 @@ def create_table_if_not_exists():
     # Create the table if it doesn't exist
     sqlite_cursor.execute('''
         CREATE TABLE IF NOT EXISTS firestore (
-            docID TEXT,
+            ID TEXT PRIMARY KEY,
             actualAmount REAL,
             amount REAL,
             blockchainTransferId TEXT,
