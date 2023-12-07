@@ -9,10 +9,16 @@ import json
 from google.oauth2 import service_account
 from google.protobuf.timestamp_pb2 import Timestamp
 
-# Authenticate to Firestore with the JSON account key.
-key_dict = json.loads(st.secrets["firestore"])
-creds = service_account.Credentials.from_service_account_info(key_dict)
-db = firestore.Client(credentials=creds, project="streamlit")
+local_testing = true
+
+if (local_testing):
+    # Authenticate to Firestore with the JSON account key.
+    db = firestore.Client.from_service_account_json("firebase-key.json")
+else:
+    # Authenticate to Firestore with the JSON account key.
+    key_dict = json.loads(st.secrets["firestore"])
+    creds = service_account.Credentials.from_service_account_info(key_dict)
+    db = firestore.Client(credentials=creds, project="streamlit")
 
 # SQLite database connection
 sqlite_conn = sqlite3.connect('firestore.db')
@@ -67,7 +73,7 @@ def firestore_to_python_type(value, data_type):
         elif data_type == 'number':
             return float(value)
         elif data_type == 'boolean':
-            if value = true:
+            if value == true:
                 return 1
             else :
                 return 0
@@ -166,7 +172,7 @@ def get_missing_data_from_firestore(sqlite_data):
     latest_time = max(entry[0] for entry in sqlite_data)
 
     # Fetch data from Firestore that is not in SQLite
-    collection_ref = db.collection("your_collection_name")
+    collection_ref = db.collection("accounting")
     docs = collection_ref.where('time', '>', latest_time).stream()
     data = [doc.to_dict() for doc in docs]
     
