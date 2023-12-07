@@ -67,7 +67,7 @@ def firestore_to_python_type(value, data_type):
         elif data_type == 'number':
             return float(value)
         elif data_type == 'boolean':
-            if value = true:
+            if value == true:
                 return 1
             else :
                 return 0
