@@ -20,7 +20,7 @@ sqlite_cursor = sqlite_conn.cursor()
 def create_table_if_not_exists():
     # Create the table if it doesn't exist
     sqlite_cursor.execute('''
-        CREATE TABLE IF NOT EXISTS firestore_cache (
+        CREATE TABLE IF NOT EXISTS firestore (
             time TEXT PRIMARY KEY,
             crypto_received REAL,
             crypto_spent REAL,
