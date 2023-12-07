@@ -22,7 +22,7 @@ def create_table_if_not_exists():
     # Create the table if it doesn't exist
     sqlite_cursor.execute('''
         CREATE TABLE IF NOT EXISTS firestore (
-            ID TEXT PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             actualAmount REAL,
             amount REAL,
             blockchainTransferId TEXT,
@@ -91,7 +91,7 @@ def get_data_from_sqlite():
 
 def update_sqlite_cache(data):
     try:
-        values = [ entry.get('docID'),
+        values = [ entry.get('id'),
                    firestore_to_python_type(entry.get('actualAmount'), 'number'),
                    firestore_to_python_type(entry.get('amount'), 'number'),
                    entry.get('blockchainTransferId'),
@@ -127,7 +127,7 @@ def update_sqlite_cache(data):
 
     sqlite_cursor.executemany('''
         INSERT OR IGNORE INTO firestore_cache 
-        (docID, actualAmount, amount, blockchainTransferId, blockchainaddress, cashbackLosses,
+        (id, actualAmount, amount, blockchainTransferId, blockchainaddress, cashbackLosses,
          cashedOut, completed, cryptocurrency, fromCurrency, hasCashRewards, mercuryoFiatAmount,
          mercuryoFromCurrency, nickname, orderNumber, p2pRateRealized, profit, profitActual,
          recipientAmount, recipientAmountDelivered, recipientCurrency, recipientPayoutOption,
