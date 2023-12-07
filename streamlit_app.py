@@ -14,7 +14,7 @@ creds = service_account.Credentials.from_service_account_info(key_dict)
 db = firestore.Client(credentials=creds, project="streamlit-reddit")
 
 # SQLite database connection
-sqlite_conn = sqlite3.connect('firestore_cache.db')
+sqlite_conn = sqlite3.connect('firestore.db')
 sqlite_cursor = sqlite_conn.cursor()
 
 def create_table_if_not_exists():
